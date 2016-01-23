@@ -42,7 +42,7 @@ app.post('/'+token, function (req, res) {
   console.log(req.body.message);
   if (req.body.message.text) {
     console.log('received text message');
-    if (!mute && req.body.message.text == 'zitto dio can') {
+    if (!mute && req.body.message.text == 'zitto coglione') {
       mute = true;
       sendMessage({
         chat_id: req.body.message.chat.id,
