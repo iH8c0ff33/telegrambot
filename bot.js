@@ -29,7 +29,7 @@ function sendPhoto(message) {
     caption: message.caption
   } });
 }
-var mute = false;
+var mute = true;
 // Express
 var app = express();
 app.use(bodyParser.json());
@@ -38,8 +38,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', function(_req, res) {
   res.send('Bot is working!');
 });
-app.post('/', function (req, _res) {
+app.post('/', function (req, res) {
   console.log(req.body);
+  res.send('OK');
 });
 app.post('/'+token, function (req, res) {
   console.log(req.body.message);
