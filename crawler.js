@@ -1,5 +1,6 @@
 var request = require('request');
 var fs = require('fs');
+var cheerio = require('cheerio');
 var cookieJar = request.jar();
 request({
   url: 'https://web.spaggiari.eu/home/app/default/login.php',
@@ -11,13 +12,8 @@ request({
     login: 'S1122773T',
     password: 'md39185l'
   }
-}, function (err, res, body) {
+}, function (err, _res, _body) {
   if (err) { throw err; }
-  res.headers['set-cookie'].forEach(function (cur) {
-    //cookieJar.setCookie(cur.split(';')[0], '.spaggiari.eu');
-  });
-  console.log(cookieJar);
-  console.log(body);
   request({
     url: 'https://web.spaggiari.eu/sif/app/default/bacheca_utente.php',
     method: 'POST',
@@ -26,7 +22,12 @@ request({
       action: 'loadother',
       offset: 0
     }
-  }, function (err, res, body) {
-    console.log(body);
+  }, function (_err, _res, body) {
+    var $ = cheerio.load(body);
+    var elements = [];
+    $('td').each(function (i, _elt) {
+      elements[i] = $(this).text();
+    });
+    console.log(elements.join('').split('\n').filter(String));
   }).pipe(fs.createWriteStream('out.html'));
 });
