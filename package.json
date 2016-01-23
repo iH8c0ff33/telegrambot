@@ -1,7 +1,7 @@
 {
-  "name": "OpenShift-Sample-App",
+  "name": "iHBot",
   "version": "1.0.0",
-  "description": "OpenShift Sample Application",
+  "description": "My telegram bot",
   "keywords": [
     "OpenShift",
     "Node.js",
@@ -9,14 +9,14 @@
     "openshift"
   ],
   "author": {
-    "name": "OpenShift",
-    "email": "ramr@example.org",
-    "url": "http://www.openshift.com/"
+    "name": "Daniele Monteleone",
+    "email": "daniele.monteleone.it@gmail.com",
+    "url": ""
   },
-  "homepage": "http://www.openshift.com/",
+  "homepage": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/openshift/origin-server"
+    "url": "https://github.com/iH8c0ff33/sunCorpBot"
   },
   "engines": {
     "node": ">= 0.6.0",
@@ -30,5 +30,5 @@
   "devDependencies": {},
   "bundleDependencies": [],
   "private": true,
-  "main": "server.js"
+  "main": "bot.js"
 }
