@@ -39,7 +39,7 @@ app.get('/', function(_req, res) {
   res.send('Bot is working!');
 });
 app.post('/', function (req, res) {
-  console.log(req.data);
+  console.log(req.body);
   res.send('OK');
 });
 app.post('/'+token, function (req, res) {
