@@ -38,6 +38,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', function(_req, res) {
   res.send('Bot is working!');
 });
+app.post('/', function (_req, res) {
+  console.log(res.body);
+});
 app.post('/'+token, function (req, res) {
   console.log(req.body.message);
   if (req.body.message.text) {
