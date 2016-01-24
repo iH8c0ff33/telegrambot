@@ -62,14 +62,21 @@ app.post('/'+telegram.token, function (req, res) {
     chats[req.body.message.chat.id].mute = false;
   }
   if (req.body.message.text) {
-    if (!chats[req.body.message.chat.id].mute && req.body.message.text.search(/\w?zitto ?(coglione|bot|deficente|porco ?dio|dio ?cane)?$/i) > -1) {
+    if (!chats[req.body.message.chat.id].mute && req.body.message.text.search(/\w?zitto ?(coglione|bot|deficente|porco ?dio|dio ?cane)?/i) > -1) {
       chats[req.body.message.chat.id].mute = true;
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone'
       });
-    } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?$/i) > -1) {
+    } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
+    }
+    if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i) > -1) {
+      sendMessage({
+        chat_id: req.body.message.chat.id,
+        text: 'Zi badrone, mi sto riavviando'
+      });
+      shutdown();
     }
     if (!chats[req.body.message.chat.id].mute) {
       sendMessage({
@@ -90,7 +97,7 @@ app.post('/'+telegram.token, function (req, res) {
 // Express server
 http.createServer(app).listen(network.port, network.address);
 // Handle signals
-process.on('SIGTERM', function () {
+function shutdown() {
   var dbChats = [];
   for (var chat in chats) {
     if (chats.hasOwnProperty(chat)) {
@@ -103,4 +110,5 @@ process.on('SIGTERM', function () {
   Chat.bulkCreate(dbChats).then(function () {
     process.exit(0);
   });
-});
+}
+process.on('SIGTERM', shutdown());
