@@ -59,7 +59,7 @@ app.post('/'+telegram.token, function (req, res) {
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone'
       });
-    } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?$/i) > -1) {
+    } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?$/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
     }
     if (!chats[req.body.message.chat.id].mute) {
