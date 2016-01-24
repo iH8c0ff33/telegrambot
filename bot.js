@@ -100,7 +100,6 @@ app.post('/'+telegram.token, function (req, res) {
 http.createServer(app).listen(network.port, network.address);
 // Handle signals
 function shutdown() {
-  var dbChats = [];
   sequelize.transaction(function (transaction) {
     for (var chat in chats) {
       if (chats.hasOwnProperty(chat)) {
