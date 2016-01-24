@@ -57,7 +57,6 @@ app.post('/', function (req, res) {
 });
 app.post('/'+telegram.token, function (req, res) {
   console.log(req.body.message);
-  console.log('regexp: '+req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i));
   if (!chats[req.body.message.chat.id]) {
     chats[req.body.message.chat.id] = req.body.message.chat;
     chats[req.body.message.chat.id].mute = false;
@@ -72,9 +71,7 @@ app.post('/'+telegram.token, function (req, res) {
     } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
     }
-    console.log('regexp: '+req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i));
     if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i) > -1) {
-      console.log('daw');
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone, mi sto riavviando'
