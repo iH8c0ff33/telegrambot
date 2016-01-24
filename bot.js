@@ -106,19 +106,21 @@ function shutdown() {
         Chat.find({ where: {
           chatId: chat
         } }).then(function (dbChat) {
-          dbChat.update({
-            chat: chats[chat]
-          }, { transaction: transaction });
-        }, function () {
-          Chat.create({
-            chatId: chat,
-            chat: chats[chat]
-          }, { transaction: transaction });
+          if (dbChat) {
+            dbChat.update({
+              chat: chats[chat]
+            }, { transaction: transaction });
+          } else {
+            Chat.create({
+              chatId: chat,
+              chat: chats[chat]
+            }, { transaction: transaction });
+          }
         });
       }
     }
   }).then(function () {
     process.exit(0);
-  });//sigterm
+  });//sigtem
 }
 process.on('SIGTERM', shutdown());
