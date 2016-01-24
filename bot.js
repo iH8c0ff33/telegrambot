@@ -101,6 +101,9 @@ app.post('/'+telegram.token, function (req, res) {
 http.createServer(app).listen(network.port, network.address);
 // Handle signals
 function shutdown() {
+  setTimeout(function () {
+    process.exit(0);
+  }, 3000);
   db.transaction(function (t) {
     for (var chat in chats) {
       if (chats.hasOwnProperty(chat)) {
