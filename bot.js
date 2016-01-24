@@ -53,13 +53,13 @@ app.post('/'+telegram.token, function (req, res) {
     chats[req.body.message.chat.id].mute = false;
   }
   if (req.body.message.text) {
-    if (!chats[req.body.message.chat.id].mute && req.body.message.text.search(/\w?zitto(coglione|bot|deficente|porco ?dio|dio ?cane)?$/i) > -1) {
+    if (!chats[req.body.message.chat.id].mute && req.body.message.text.search(/\w?zitto ?(coglione|bot|deficente|porco ?dio|dio ?cane)?$/i) > -1) {
       chats[req.body.message.chat.id].mute = true;
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone'
       });
-    } else if (chats[req.body.message.chat.id].mute && req.body.message.text == 'ora puoi parlare') {
+    } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?$/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
     }
     if (!chats[req.body.message.chat.id].mute) {
