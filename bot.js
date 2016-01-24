@@ -71,6 +71,7 @@ app.post('/'+telegram.token, function (req, res) {
     } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
     }
+    console.log(req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i));
     if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i) > -1) {
       console.log('daw');
       sendMessage({
@@ -100,15 +101,24 @@ http.createServer(app).listen(network.port, network.address);
 // Handle signals
 function shutdown() {
   var dbChats = [];
-  for (var chat in chats) {
-    if (chats.hasOwnProperty(chat)) {
-      dbChats.push({
-        chatId: chats[chat].id,
-        chat: chats[chat]
-      });
+  sequelize.transaction(function (transaction) {
+    for (var chat in chats) {
+      if (chats.hasOwnProperty(chat)) {
+        Chat.create({
+          chatId: chat,
+          chat: chats[chat]
+        }, { transaction: transaction }).then(function () { return; }, function () {
+          Chat.find({ where: {
+            chatId: chat
+          } }).then(function (dbChat) {
+            dbChat.update({
+              chat: chats[chat]
+            }, { transaction: transaction });
+          });
+        });
+      }
     }
-  }
-  Chat.bulkCreate(dbChats).then(function () {
+  }).then(function () {
     process.exit(0);
   });
 }
