@@ -48,21 +48,21 @@ app.post('/', function (req, res) {
 });
 app.post('/'+telegram.token, function (req, res) {
   console.log(req.body.message);
-  if (!chats[req.body.chat.id]) {
-    chats[req.body.chat.id] = req.body.chat;
-    chats[req.body.chat.id].mute = false;
+  if (!chats[req.body.message.chat.id]) {
+    chats[req.body.message.chat.id] = req.body.message.chat;
+    chats[req.body.message.chat.id].mute = false;
   }
   if (req.body.message.text) {
-    if (!chats[req.body.chat.id].mute && req.body.message.text == 'zitto coglione') {
-      chats[req.body.chat.id].mute = true;
+    if (!chats[req.body.message.chat.id].mute && req.body.message.text == 'zitto coglione') {
+      chats[req.body.message.chat.id].mute = true;
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone'
       });
-    } else if (chats[req.body.chat.id].mute && req.body.message.text == 'ora puoi parlare') {
-      chats[req.body.chat.id].mute = false;
+    } else if (chats[req.body.message.chat.id].mute && req.body.message.text == 'ora puoi parlare') {
+      chats[req.body.message.chat.id].mute = false;
     }
-    if (!chats[req.body.chat.id].mute) {
+    if (!chats[req.body.message.chat.id].mute) {
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'received text: \"'+req.body.message.text+'\";'
