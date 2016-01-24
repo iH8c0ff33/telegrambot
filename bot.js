@@ -95,5 +95,5 @@ process.on('SIGTERM', function () {
   }
   Chat.bulkCreate(dbChats).then(function () {
     process.exit(0);
-  });// just to send sigterm
+  });// just to send sigterm again
 });
