@@ -82,3 +82,18 @@ app.post('/'+telegram.token, function (req, res) {
 });
 // Express server
 http.createServer(app).listen(network.port, network.address);
+// Handle signals
+process.on('SIGTERM', function () {
+  var dbChats = [];
+  for (var chat in chats) {
+    if (chats.hasOwnProperty(chat)) {
+      dbChats.push({
+        chatId: chats[chat].id,
+        chat: chats[chat]
+      });
+    }
+  }
+  Chat.bulkCreate(dbChats).then(function () {
+    process.exit(0);
+  });
+});
