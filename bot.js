@@ -53,7 +53,7 @@ app.post('/'+telegram.token, function (req, res) {
     chats[req.body.message.chat.id].mute = false;
   }
   if (req.body.message.text) {
-    if (!chats[req.body.message.chat.id].mute && req.body.message.text == 'zitto coglione') {
+    if (!chats[req.body.message.chat.id].mute && req.body.message.text.search('/zitto coglione/i') > -1) {
       chats[req.body.message.chat.id].mute = true;
       sendMessage({
         chat_id: req.body.message.chat.id,
