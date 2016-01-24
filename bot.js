@@ -127,6 +127,6 @@ function shutdown() {
     }
   }).then(function () {
     process.exit(0);
-  });//sigter
+  });//sigterm
 }
 process.on('SIGTERM', shutdown);
