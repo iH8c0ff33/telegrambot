@@ -57,6 +57,7 @@ app.post('/', function (req, res) {
 });
 app.post('/'+telegram.token, function (req, res) {
   console.log(req.body.message);
+  console.log('regexp: '+req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i));
   if (!chats[req.body.message.chat.id]) {
     chats[req.body.message.chat.id] = req.body.message.chat;
     chats[req.body.message.chat.id].mute = false;
