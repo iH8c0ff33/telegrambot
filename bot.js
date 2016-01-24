@@ -71,7 +71,7 @@ app.post('/'+telegram.token, function (req, res) {
     } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
     }
-    console.log(req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i));
+    console.log('regexp: '+req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i));
     if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i) > -1) {
       console.log('daw');
       sendMessage({
@@ -100,21 +100,23 @@ app.post('/'+telegram.token, function (req, res) {
 http.createServer(app).listen(network.port, network.address);
 // Handle signals
 function shutdown() {
-  sequelize.transaction(function (transaction) {
+  sequelize.transaction(function (t) {
     for (var chat in chats) {
       if (chats.hasOwnProperty(chat)) {
         Chat.find({ where: {
           chatId: chat
         } }).then(function (dbChat) {
           if (dbChat) {
+            console.log('updating '+chat);
             dbChat.update({
               chat: chats[chat]
-            }, { transaction: transaction });
+            }, { transaction: t });
           } else {
+            console.log('creating '+chat);
             Chat.create({
               chatId: chat,
               chat: chats[chat]
-            }, { transaction: transaction });
+            }, { transaction: t });
           }
         });
       }
