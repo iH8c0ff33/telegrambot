@@ -112,12 +112,12 @@ function shutdown() {
         } }).then(function (dbChat) {
           if (dbChat) {
             console.log('updating '+chat);
-            dbChat.update({
+            return dbChat.update({
               chat: chats[chat]
             }, { transaction: t });
           } else {
             console.log('creating '+chat);
-            Chat.create({
+            return Chat.create({
               chatId: chat,
               chat: chats[chat]
             }, { transaction: t });
