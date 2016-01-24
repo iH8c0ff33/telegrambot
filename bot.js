@@ -4,10 +4,13 @@ var http = require('http');
 var bodyParser = require('body-parser');
 var request = require('request');
 var fs = require('fs');
-var exec = require('child_process').exec;
+var sequelize = require('sequelize');
 // Load configs
 var network = require(__dirname+'/config/address.js');
 var telegram = require(__dirname+'/config/telegram.js');
+var database = require(__dirname+'/config/database.js');
+// Database connection
+var db = new sequelize(database.name, database.user, database.password, { dialect: 'postgres' });
 // Bot configuration
 function sendMessage(message) {
   if (!message.chat_id || !message.text) {
@@ -54,15 +57,6 @@ app.post('/'+telegram.token, function (req, res) {
       });
     } else if (mute && req.body.message.text == 'ora puoi parlare') {
       mute = false;
-    }
-    if (req.body.message.text == 'ls') {
-      exec('ls', function (_error, stdout, _stderr) {
-        sendMessage({
-          chat_id: req.body.message.chat.id,
-          disableWeb: true,
-          text: stdout
-        });
-      });
     }
     if (!mute) {
       sendMessage({
