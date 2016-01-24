@@ -12,6 +12,9 @@ var database = require(__dirname+'/config/database.js');
 // Database connection
 var db = new sequelize(database.name, database.user, database.password, { dialect: 'postgres' });
 var chats = {};
+// Database models
+var Chat = db.import(__dirname+'/models/chat.js');
+Chat.sync();
 // Bot configuration
 function sendMessage(message) {
   if (!message.chat_id || !message.text) {
