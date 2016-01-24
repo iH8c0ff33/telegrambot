@@ -104,7 +104,7 @@ function shutdown() {
   db.transaction(function (t) {
     for (var chat in chats) {
       if (chats.hasOwnProperty(chat)) {
-        Chat.find({ where: {
+        return Chat.find({ where: {
           chatId: chat
         } }).then(function (dbChat) {
           if (dbChat) {
