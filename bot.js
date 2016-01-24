@@ -14,6 +14,13 @@ var chats = {};
 // Database models
 var Chat = db.import(__dirname+'/models/chat.js');
 Chat.sync();
+// Load chats from database
+Chat.findAll().then(function (dbChats) {
+  dbChats.forEach(function (element) {
+    chats[element.chatId] = element.chat;
+  });
+  console.log(chats);
+});
 // Bot configuration
 function sendMessage(message) {
   if (!message.chat_id || !message.text) {
@@ -95,5 +102,5 @@ process.on('SIGTERM', function () {
   }
   Chat.bulkCreate(dbChats).then(function () {
     process.exit(0);
-  });// just to send sigterm again
+  });
 });
