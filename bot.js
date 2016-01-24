@@ -103,17 +103,17 @@ function shutdown() {
   sequelize.transaction(function (transaction) {
     for (var chat in chats) {
       if (chats.hasOwnProperty(chat)) {
-        Chat.create({
-          chatId: chat,
-          chat: chats[chat]
-        }, { transaction: transaction }).then(function () { return; }, function () {
-          Chat.find({ where: {
-            chatId: chat
-          } }).then(function (dbChat) {
-            dbChat.update({
-              chat: chats[chat]
-            }, { transaction: transaction });
-          });
+        Chat.find({ where: {
+          chatId: chat
+        } }).then(function (dbChat) {
+          dbChat.update({
+            chat: chats[chat]
+          }, { transaction: transaction });
+        }, function () {
+          Chat.create({
+            chatId: chat,
+            chat: chats[chat]
+          }, { transaction: transaction });
         });
       }
     }
