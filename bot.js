@@ -72,6 +72,7 @@ app.post('/'+telegram.token, function (req, res) {
       chats[req.body.message.chat.id].mute = false;
     }
     if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i) > -1) {
+      console.log('daw');
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone, mi sto riavviando'
