@@ -1,6 +1,6 @@
 module.exports = function (db, sequelize) {
   return db.define('chat', {
-    id: {
+    chatId: {
       type: sequelize.INTEGER,
       allowNull: false,
       unique: true
