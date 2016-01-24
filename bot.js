@@ -11,6 +11,7 @@ var telegram = require(__dirname+'/config/telegram.js');
 var database = require(__dirname+'/config/database.js');
 // Database connection
 var db = new sequelize(database.name, database.user, database.password, { dialect: 'postgres' });
+var chats = {};
 // Bot configuration
 function sendMessage(message) {
   if (!message.chat_id || !message.text) {
@@ -33,7 +34,6 @@ function sendPhoto(message) {
     caption: message.caption
   } });
 }
-var mute = true;
 // Express
 var app = express();
 app.use(bodyParser.json());
@@ -48,17 +48,21 @@ app.post('/', function (req, res) {
 });
 app.post('/'+telegram.token, function (req, res) {
   console.log(req.body.message);
+  if (!chats[req.body.chat.id]) {
+    chats[req.body.chat.id] = req.body.chat;
+    chats[req.body.chat.id].mute = false;
+  }
   if (req.body.message.text) {
-    if (!mute && req.body.message.text == 'zitto coglione') {
-      mute = true;
+    if (!chats[req.body.chat.id].mute && req.body.message.text == 'zitto coglione') {
+      chats[req.body.chat.id].mute = true;
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone'
       });
-    } else if (mute && req.body.message.text == 'ora puoi parlare') {
-      mute = false;
+    } else if (chats[req.body.chat.id].mute && req.body.message.text == 'ora puoi parlare') {
+      chats[req.body.chat.id].mute = false;
     }
-    if (!mute) {
+    if (!chats[req.body.chat.id].mute) {
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'received text: \"'+req.body.message.text+'\";'
