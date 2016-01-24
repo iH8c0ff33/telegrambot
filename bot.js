@@ -104,29 +104,25 @@ function shutdown() {
   setTimeout(function () {
     process.exit(0);
   }, 3000);
-  db.transaction(function (t) {
-    for (var chat in chats) {
-      if (chats.hasOwnProperty(chat)) {
-        Chat.find({ where: {
-          chatId: chat
-        } }).then(function (dbChat) {
-          if (dbChat) {
-            console.log('updating '+chat);
-            return dbChat.update({
-              chat: chats[chat]
-            }, { transaction: t });
-          } else {
-            console.log('creating '+chat);
-            return Chat.create({
-              chatId: chat,
-              chat: chats[chat]
-            }, { transaction: t });
-          }
-        });
-      }
+  for (var chat in chats) {
+    if (chats.hasOwnProperty(chat)) {
+      Chat.find({ where: {
+        chatId: chat
+      } }).then(function (dbChat) {
+        if (dbChat) {
+          console.log('updating '+chat);
+          return dbChat.update({
+            chat: chats[chat]
+          });
+        } else {
+          console.log('creating '+chat);
+          return Chat.create({
+            chatId: chat,
+            chat: chats[chat]
+          });
+        }
+      });
     }
-  }).then(function () {
-    process.exit(0);
-  });//sigterm
+  }
 }
 process.on('SIGTERM', shutdown);
