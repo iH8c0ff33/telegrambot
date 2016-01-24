@@ -1,5 +1,4 @@
 var request = require('request');
-var fs = require('fs');
 var cheerio = require('cheerio');
 var cookieJar = request.jar();
 request({
@@ -23,11 +22,24 @@ request({
       offset: 0
     }
   }, function (_err, _res, body) {
-    var $ = cheerio.load(body);
-    var elements = [];
-    $('td').each(function (i, _elt) {
-      elements[i] = $(this).text();
+    var $ = cheerio.load('<table>'+body+'</table>');
+    var announcments = [];
+    $('tr').each(function () {
+      var tds = [];
+      $(this).find('td').each(function (index) {
+        tds[index] = $(this);
+      });
+      var divs = [];
+      tds[2].find('div').each(function (index) {
+        divs[index] = $(this);
+      });
+      announcments.push({
+        comId: tds[4].find('a').attr('comunicazione_id'),
+        title: divs[0].text().split('\n').join(''),
+        category: divs[1].text().split('\n').join(''),
+        date: tds[3].text().split('\n').join('')
+      });
     });
-    console.log(elements.join('').split('\n').filter(String));
-  }).pipe(fs.createWriteStream('out.html'));
+    console.log(JSON.stringify(announcments, null, ''));
+  });
 });

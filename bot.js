@@ -5,14 +5,15 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var fs = require('fs');
 var exec = require('child_process').exec;
+// Load configs
+var network = require(__dirname+'/config/address.js');
+var telegram = require(__dirname+'/config/telegram.js');
 // Bot configuration
-var token = '130906513:AAG6u4Jr8txCneVcha57SXAb9vsDbs1lINg';
-var apiUrl = 'https://api.telegram.org/bot'+token+'/';
 function sendMessage(message) {
   if (!message.chat_id || !message.text) {
-    console.log('ERR: empty chat_id or text');
+    return console.log('ERR: empty chat_id or text');
   }
-  request.get(apiUrl+'sendMessage', { form: {
+  request.get(telegram.apiUrl+'sendMessage', { form: {
     chat_id: message.chat_id,
     text: message.text,
     disable_web_page_preview: message.disableWeb,
@@ -21,9 +22,9 @@ function sendMessage(message) {
 }
 function sendPhoto(message) {
   if (!message.chat_id || !message.photoPath) {
-    console.log('ERR: empty chat_id or photoPath');
+    return console.log('ERR: empty chat_id or photoPath');
   }
-  request.get(apiUrl+'sendPhoto', { formData: {
+  request.get(telegram.apiUrl+'sendPhoto', { formData: {
     chat_id: message.chat_id,
     photo: fs.createReadStream(message.photo),
     caption: message.caption
@@ -42,7 +43,7 @@ app.post('/', function (req, res) {
   console.log(req.body);
   res.send('OK');
 });
-app.post('/'+token, function (req, res) {
+app.post('/'+telegram.token, function (req, res) {
   console.log(req.body.message);
   if (req.body.message.text) {
     if (!mute && req.body.message.text == 'zitto coglione') {
@@ -78,7 +79,7 @@ app.post('/'+token, function (req, res) {
     }
   } else {
     console.log(req.body);
-    request.get(apiUrl+'sendMessage', { form: {
+    request.get(telegram.apiUrl+'sendMessage', { form: {
       chat_id: req.body.message.chat.id,
       text: 'received unknown message: '+JSON.stringify(req.body.message, null, ' ')+';'
     } });
@@ -86,4 +87,4 @@ app.post('/'+token, function (req, res) {
   res.send('OK');
 });
 // Express server
-http.createServer(app).listen(process.env.OPENSHIFT_NODEJS_PORT || 8080, process.env.OPENSHIFT_NODEJS_IP);
+http.createServer(app).listen(network.port, network.address);
