@@ -126,4 +126,4 @@ function shutdown() {
     process.exit(0);
   });//sigter
 }
-process.on('SIGTERM', shutdown());
+process.on('SIGTERM', shutdown);
