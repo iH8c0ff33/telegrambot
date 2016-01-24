@@ -8,7 +8,6 @@ var sequelize = require('sequelize');
 // Load configs
 var network = require(__dirname+'/config/address.js');
 var telegram = require(__dirname+'/config/telegram.js');
-var database = require(__dirname+'/config/database.js');
 // Database connection
 var db = new sequelize(process.env.OPENSHIFT_POSTGRESQL_DB_URL);
 var chats = {};
