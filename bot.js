@@ -68,19 +68,13 @@ app.post('/'+telegram.token, function (req, res) {
         text: 'received text: \"'+req.body.message.text+'\";'
       });
     }
-    if (req.body.message.text == 'photo') {
-      sendPhoto({
-        chat_id: req.body.message.chat.id,
-        photo: __dirname+'/photo.jpg',
-        caption: 'caption'
-      });
-    }
   } else {
-    console.log(req.body);
-    request.get(telegram.apiUrl+'sendMessage', { form: {
-      chat_id: req.body.message.chat.id,
-      text: 'received unknown message: '+JSON.stringify(req.body.message, null, ' ')+';'
-    } });
+    if (!chats[req.body.message.chat.id].mute) {
+      request.get(telegram.apiUrl+'sendMessage', { form: {
+        chat_id: req.body.message.chat.id,
+        text: 'received unknown message: '+JSON.stringify(req.body.message, null, ' ')+';'
+      } });
+    }
   }
   res.send('OK');
 });
