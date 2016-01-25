@@ -104,6 +104,7 @@ function shutdown() {
   }, 3000);
   for (var chat in chats) {
     if (chats.hasOwnProperty(chat)) {
+      console.log('finding '+chat);
       Chat.find({ where: {
         chatId: chat
       } }).then(function (dbChat) {
