@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var fs = require('fs');
 var sequelize = require('sequelize');
-var crawler = require('crawler');
+var crawler = require(__dirname+'/crawler.js');
 // Load configs
 var network = require(__dirname+'/config/address.js');
 var telegram = require(__dirname+'/config/telegram.js');
