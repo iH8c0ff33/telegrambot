@@ -105,23 +105,25 @@ function shutdown() {
   for (var chat in chats) {
     if (chats.hasOwnProperty(chat)) {
       console.log('finding '+chat);
-      Chat.find({ where: {
-        chatId: chat
-      } }).then(function (dbChat) {
-        console.log(chat);
-        if (dbChat) {
-          console.log('updating '+chat);
-          return dbChat.update({
-            chat: chats[chat]
-          });
-        } else {
-          console.log('creating '+chat);
-          return Chat.create({
-            chatId: chat,
-            chat: chats[chat]
-          });
-        }
-      });
+      (function (chat) {
+        Chat.find({ where: {
+          chatId: chat
+        } }).then(function (dbChat) {
+          console.log(chat);
+          if (dbChat) {
+            console.log('updating '+chat);
+            return dbChat.update({
+              chat: chats[chat]
+            });
+          } else {
+            console.log('creating '+chat);
+            return Chat.create({
+              chatId: chat,
+              chat: chats[chat]
+            });
+          }
+        });
+      })(chat);
     }
   }
 }
