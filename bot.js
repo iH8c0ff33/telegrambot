@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var fs = require('fs');
 var sequelize = require('sequelize');
+var crawler = require('crawler');
 // Load configs
 var network = require(__dirname+'/config/address.js');
 var telegram = require(__dirname+'/config/telegram.js');
@@ -13,7 +14,9 @@ var db = new sequelize(process.env.OPENSHIFT_POSTGRESQL_DB_URL+'/telegrambot');
 var chats = {};
 // Database models
 var Chat = db.import(__dirname+'/models/chat.js');
+var Communication = db.import(__dirname+'/models.communication.js');
 Chat.sync();
+Communication.sync();
 // Load chats from database
 Chat.findAll().then(function (dbChats) {
   dbChats.forEach(function (element) {
@@ -71,12 +74,30 @@ app.post('/'+telegram.token, function (req, res) {
     } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
     }
-    if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?$/i) > -1) {
+    if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?/i) > -1) {
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone, mi sto riavviando'
       });
       shutdown();
+    }
+    if (req.body.message.text.search(/(scarica|cerca|trova|trovami) (delle|dei|degli)?(nuove|nuovi)? ?(circolari|annunci)/i) > -1) {
+      sendMessage({
+        chat_id: req.body.message.chat.id,
+        text: 'Sto cercando nuove circolari...'
+      });
+      (function (chatId) {
+        crawler.crawl(function (announcments) {
+          var message = '';
+          announcments.forEach(function (item) {
+            message += item.title+'\n';
+          });
+          sendMessage({
+            chat_id: chatId,
+            text: message
+          });
+        });
+      })(req.body.message.chat.id);
     }
     if (!chats[req.body.message.chat.id].mute) {
       sendMessage({
