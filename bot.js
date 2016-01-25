@@ -87,7 +87,7 @@ app.post('/'+telegram.token, function (req, res) {
         text: 'Sto cercando nuove circolari...'
       });
       (function (chatId) {
-        crawler.crawl(function (announcments) {
+        crawler.crawlComs(function (announcments) {
           var message = '';
           announcments.forEach(function (item) {
             message += item.title+'\n';
