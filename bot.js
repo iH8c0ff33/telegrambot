@@ -108,6 +108,7 @@ function shutdown() {
       Chat.find({ where: {
         chatId: chat
       } }).then(function (dbChat) {
+        console.log(chat);
         if (dbChat) {
           console.log('updating '+chat);
           return dbChat.update({
