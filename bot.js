@@ -14,7 +14,7 @@ var db = new sequelize(process.env.OPENSHIFT_POSTGRESQL_DB_URL+'/telegrambot');
 var chats = {};
 // Database models
 var Chat = db.import(__dirname+'/models/chat.js');
-var Communication = db.import(__dirname+'/models.communication.js');
+var Communication = db.import(__dirname+'/models/communication.js');
 Chat.sync();
 Communication.sync();
 // Load chats from database
