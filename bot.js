@@ -65,23 +65,23 @@ app.post('/'+telegram.token, function (req, res) {
     chats[req.body.message.chat.id].mute = false;
   }
   if (req.body.message.text) {
-    if (!chats[req.body.message.chat.id].mute && req.body.message.text.search(/\w?zitto ?(coglione|bot|deficente|porco ?dio|dio ?cane)?/i) > -1) {
+    if (!chats[req.body.message.chat.id].mute && req.body.message.text.search(/\w?zitto ?(coglione|(stupido)?bot( del cazzo| inutile)?|deficente|porco ?dio|dio ?cane)?/i) > -1) {
       chats[req.body.message.chat.id].mute = true;
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone'
       });
-    } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|bot|deficente)?/i) > -1) {
+    } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|(stupido)?bot( del cazzo| inutile)?|deficente)?/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
     }
-    if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|bot|deficiente|porco ?dio|dio ?cane)?/i) > -1) {
+    if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|(stupido)?bot( del cazzo| inutile)?|deficiente|porco ?dio|dio ?cane)?/i) > -1) {
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone, mi sto riavviando'
       });
       shutdown();
     }
-    if (req.body.message.text.search(/(scarica|cerca|trova|trovami) (delle|dei|degli)?(nuove|nuovi)? ?(circolari|annunci)/i) > -1) {
+    if (req.body.message.text.search(/(scarica|cerca|trova|trovami) (delle|dei|degli)? ?(nuove|nuovi)? ?(circolari|annunci)/i) > -1) {
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Sto cercando nuove circolari...'
@@ -90,6 +90,34 @@ app.post('/'+telegram.token, function (req, res) {
         crawler.crawlComs(function (announcments) {
           var message = '';
           announcments.forEach(function (item) {
+            sendMessage({
+              chat_id: chatId,
+              text: 'searching for comID: '+item.comId
+            });
+            Communication.find({ where: { comId: item.comID } }).then(function (com) {
+              if (com) {
+                sendMessage({
+                  chat_id: chatId,
+                  text: 'comID: '+item.comId+' found, doing nothing'
+                });
+              } else {
+                sendMessage({
+                  chat_id: chatId,
+                  text: 'comID: '+item.comId+' not found, adding to database'
+                });
+                Communication.create({
+                  comId: item.comId,
+                  title: item.title,
+                  category: item.category,
+                  date: item.date
+                }).then(function () {
+                  sendMessage({
+                    chat_id: chatId,
+                    text: 'created: '+JSON.stringify(item, null, ' ')
+                  });
+                });
+              }
+            });
             message += item.title+'\n';
           });
           sendMessage({

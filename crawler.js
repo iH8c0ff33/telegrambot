@@ -37,7 +37,7 @@ module.exports = {
             divs[index] = $(this);
           });
           announcments.push({
-            comId: tds[4].find('a').attr('comunicazione_id'),
+            comId: parseInt(tds[4].find('a').attr('comunicazione_id')),
             title: divs[0].text().split('\n').join(''),
             category: divs[1].text().split('\n').join(''),
             date: tds[3].text().split('\n').join('')
