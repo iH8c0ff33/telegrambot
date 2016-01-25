@@ -142,7 +142,6 @@ app.post('/'+telegram.token, function (req, res) {
     }
   }
   res.send('OK');
-  console.log(chats);//debug
 });
 // Express server
 http.createServer(app).listen(network.port, network.address);
@@ -176,4 +175,39 @@ function shutdown() {
     }
   }
 }
+function checkComs() {
+  var chatId = '-69312418';
+  crawler.crawlComs(function (announcments) {
+    var message = '';
+    announcments.forEach(function (item) {
+      sendMessage({
+        chat_id: chatId,
+        text: 'searching for comID: '+item.comId
+      });
+      Communication.find({ where: { comId: item.comID } }).then(function (com) {
+        if (com) {
+          console.log('old: '+JSON.stringify(item, null, ' '));
+        } else {
+          Communication.create({
+            comId: item.comId,
+            title: item.title,
+            category: item.category,
+            date: item.date
+          }).then(function () {
+            sendMessage({
+              chat_id: chatId,
+              text: 'new: '+JSON.stringify(item, null, ' ')
+            });
+          });
+        }
+      });
+      message += item.title+'\n';
+    });
+    sendMessage({
+      chat_id: chatId,
+      text: message
+    });
+  });
+}
+setInterval(checkComs, 900000);
 process.on('SIGTERM', shutdown);
