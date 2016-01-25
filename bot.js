@@ -57,7 +57,6 @@ app.post('/', function (req, res) {
 });
 app.post('/'+telegram.token, function (req, res) {
   console.log(req.body.message);
-  console.log(chats);//debug
   if (!chats[req.body.message.chat.id]) {
     chats[req.body.message.chat.id] = req.body.message.chat;
     chats[req.body.message.chat.id].mute = false;
@@ -94,6 +93,7 @@ app.post('/'+telegram.token, function (req, res) {
     }
   }
   res.send('OK');
+  console.log(chats);//debug
 });
 // Express server
 http.createServer(app).listen(network.port, network.address);
