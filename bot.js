@@ -46,6 +46,24 @@ function sendPhoto(message) {
     caption: message.caption
   } });
 }
+function sendDocument(message, done) {
+  if (!message.chat_id || !message.document) {
+    return console.log('ERR: empty chat_id or documentPath');
+  }
+  request.get(telegram.apiUrl+'sendDocument', { formData: {
+    chat_id: message.chat_id,
+    document: {
+      value: message.document.stream,
+      options: {
+        filename: message.document.name,
+        contentType: message.document.type
+      }
+    }
+  } }, function (err) {
+    if (err) { console.log(err); }
+    done();
+  });
+}
 // Express
 var app = express();
 app.use(bodyParser.json());
@@ -95,9 +113,20 @@ app.post('/'+telegram.token, function (req, res) {
     } else if (req.body.message.text.search(/^\/ultime10$/) > -1) {
       sendLast(10, req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/download/) > -1) {
-      crawler.download(req.body.message.text.match(/\d+/)[0], function (file) {
-        console.log(file);
-      });
+      (function (chatId) {
+        crawler.download(req.body.message.text.match(/\d+/)[0], function (fileStream, comId, deleteTemp) {
+          sendDocument({
+            chat_id: chatId,
+            document: {
+              stream: fileStream,
+              name: comId+'.pdf',
+              type: 'application/pdf'
+            }
+          }, function () {
+            deleteTemp(comId);
+          });
+        });
+      })(req.body.message.chat.id);
     }
   } else {
     if (!chats[req.body.message.chat.id].mute) {

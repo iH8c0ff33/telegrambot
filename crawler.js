@@ -1,5 +1,6 @@
 var request = require('request');
 var cheerio = require('cheerio');
+var fs = require('fs');
 var cookieJar = request.jar();
 
 module.exports = {
@@ -70,7 +71,11 @@ module.exports = {
           com_id: comId
         }
       }, function (_err, _res, body) {
-        done(body);
+        fs.writeFile(comId+'.pdf', body, function() {
+          done(fs.createReadStream(comId+'.pdf'), comId, function (comId) {
+            fs.unlink(comId+'.pdf');
+          });
+        });
       });
     });
   }
