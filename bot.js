@@ -86,18 +86,7 @@ app.post('/'+telegram.token, function (req, res) {
         chat_id: req.body.message.chat.id,
         text: 'Sto cercando nuove circolari...'
       });
-      (function (chatId) {
-        crawler.crawlComs(function (announcments) {
-          var message = '';
-          announcments.forEach(function (item) {
-            message += item.title+'\n';
-          });
-          sendMessage({
-            chat_id: chatId,
-            text: message
-          });
-        });
-      })(req.body.message.chat.id);
+      checkComs();
     }
     if (!chats[req.body.message.chat.id].mute) {
       sendMessage({
@@ -155,6 +144,7 @@ function checkComs() {
         if (com) {
           console.log('old: '+JSON.stringify(item, null, ' '));
         } else {
+          console.log('new: '+JSON.stringify(item, null, ' '));
           Communication.create({
             comId: item.comId,
             title: item.title,
