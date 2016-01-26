@@ -92,13 +92,15 @@ app.post('/'+telegram.token, function (req, res) {
       var args = req.body.message.text.split(' ');
       if (args[0] == '/display') {
         (function (chatId) {
+          var message = '';
           crawler.crawlComs(function (announcments) {
             for (var current = 0; current < args[1]; current++) {
-              sendMessage({
-                chat_id: chatId,
-                text: 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nID: '+announcments[current].comId
-              });
+              message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nID: '+announcments[current].comId+'/n------/n';
             }
+            sendMessage({
+              chat_id: chatId,
+              text: message
+            });
           });
         })(req.body.message.chat.id);
       }
