@@ -140,7 +140,7 @@ function checkComs() {
   var chatId = '-69312418';
   crawler.crawlComs(function (announcments) {
     announcments.forEach(function (item) {
-      Communication.find({ where: { comId: item.comID } }).then(function (com) {
+      Communication.find({ where: { comId: item.comId } }).then(function (com) {
         if (com) {
           console.log('old: '+JSON.stringify(item, null, ' '));
         } else {
