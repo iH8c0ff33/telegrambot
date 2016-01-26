@@ -95,7 +95,7 @@ app.post('/'+telegram.token, function (req, res) {
           var message = '';
           crawler.crawlComs(function (announcments) {
             for (var current = 0; current < args[1]; current++) {
-              message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nID: '+announcments[current].comId+'/n------/n';
+              message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nID: '+announcments[current].comId+'\n------\n';
             }
             console.log('message'+message);
             sendMessage({
