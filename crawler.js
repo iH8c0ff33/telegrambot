@@ -47,5 +47,31 @@ module.exports = {
         return done(announcments);
       });
     });
+  },
+  download: function (comId, done) {
+    request({
+      url: 'https://web.spaggiari.eu/home/app/default/login.php',
+      method: 'POST',
+      jar: cookieJar,
+      formData: {
+        action: 'login.php',
+        custcode: 'TOLS0005',
+        login: 'S1122773T',
+        password: 'md39185l'
+      }
+    }, function (err) {
+      if (err) { throw err; }
+      request({
+        url: 'https://web.spaggiari.eu/sif/app/default/bacheca_utente.php',
+        method: 'POST',
+        jar:cookieJar,
+        formData: {
+          action: 'file_download',
+          com_id: comId
+        }
+      }, function (_err, _res, body) {
+        done(body);
+      });
+    });
   }
 };

@@ -94,6 +94,10 @@ app.post('/'+telegram.token, function (req, res) {
       sendLast(5, req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/ultime10$/) > -1) {
       sendLast(10, req.body.message.chat.id);
+    } else if (req.body.message.text.search(/^\/download/) > -1) {
+      crawler.download(req.body.message.text.match(/\d+/)[0], function (file) {
+        console.log(file);
+      });
     }
   } else {
     if (!chats[req.body.message.chat.id].mute) {
