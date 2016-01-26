@@ -97,6 +97,7 @@ app.post('/'+telegram.token, function (req, res) {
             for (var current = 0; current < args[1]; current++) {
               message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nID: '+announcments[current].comId+'/n------/n';
             }
+            console.log('message'+message);
             sendMessage({
               chat_id: chatId,
               text: message
