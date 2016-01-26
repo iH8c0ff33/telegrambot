@@ -71,7 +71,7 @@ app.post('/'+telegram.token, function (req, res) {
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone'
       });
-    } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|(stupido)?bot( del cazzo| inutile)?|deficente)?/i) > -1) {
+    } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|(stupido)? ?bot( del cazzo| inutile)?|deficente)?/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
     }
     if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|(stupido)?bot( del cazzo| inutile)?|deficiente|porco ?dio|dio ?cane)?/i) > -1) {
@@ -87,6 +87,21 @@ app.post('/'+telegram.token, function (req, res) {
         text: 'Sto cercando nuove circolari...'
       });
       checkComs();
+    }
+    if (req.body.message.text.search(/\//) > -1) {
+      var args = req.body.message.text.split(' ');
+      if (args[0] == '/display') {
+        (function (chatId) {
+          crawler.crawlComs(function (announcments) {
+            for (var current = 0; current < args[1]; current++) {
+              sendMessage({
+                chat_id: chatId,
+                text: 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nID: '+announcments[current].comId
+              });
+            }
+          });
+        })(req.body.message.chat.id);
+      }
     }
     if (!chats[req.body.message.chat.id].mute) {
       sendMessage({
