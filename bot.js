@@ -90,34 +90,6 @@ app.post('/'+telegram.token, function (req, res) {
         crawler.crawlComs(function (announcments) {
           var message = '';
           announcments.forEach(function (item) {
-            sendMessage({
-              chat_id: chatId,
-              text: 'searching for comID: '+item.comId
-            });
-            Communication.find({ where: { comId: item.comID } }).then(function (com) {
-              if (com) {
-                sendMessage({
-                  chat_id: chatId,
-                  text: 'comID: '+item.comId+' found, doing nothing'
-                });
-              } else {
-                sendMessage({
-                  chat_id: chatId,
-                  text: 'comID: '+item.comId+' not found, adding to database'
-                });
-                Communication.create({
-                  comId: item.comId,
-                  title: item.title,
-                  category: item.category,
-                  date: item.date
-                }).then(function () {
-                  sendMessage({
-                    chat_id: chatId,
-                    text: 'created: '+JSON.stringify(item, null, ' ')
-                  });
-                });
-              }
-            });
             message += item.title+'\n';
           });
           sendMessage({
@@ -178,12 +150,7 @@ function shutdown() {
 function checkComs() {
   var chatId = '-69312418';
   crawler.crawlComs(function (announcments) {
-    var message = '';
     announcments.forEach(function (item) {
-      sendMessage({
-        chat_id: chatId,
-        text: 'searching for comID: '+item.comId
-      });
       Communication.find({ where: { comId: item.comID } }).then(function (com) {
         if (com) {
           console.log('old: '+JSON.stringify(item, null, ' '));
@@ -201,11 +168,6 @@ function checkComs() {
           });
         }
       });
-      message += item.title+'\n';
-    });
-    sendMessage({
-      chat_id: chatId,
-      text: message
     });
   });
 }
