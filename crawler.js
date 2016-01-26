@@ -72,7 +72,8 @@ module.exports = {
         }
       }, function (_err, _res, body) {
         fs.writeFile(comId+'.pdf', body, function() {
-          done(fs.createReadStream(comId+'.pdf'), comId, function (comId) {
+          //fs.createReadStream(comId+'.pdf')
+          done(body, comId, function (comId) {
             fs.unlink(comId+'.pdf');
           });
         });
