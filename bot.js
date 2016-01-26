@@ -73,44 +73,27 @@ app.post('/'+telegram.token, function (req, res) {
       });
     } else if (chats[req.body.message.chat.id].mute && req.body.message.text.search(/(adesso|ora)? ?puoi (parlare|tornare a rompere|continuare) ?(coglione|(stupido)? ?bot( del cazzo| inutile)?|deficente)?/i) > -1) {
       chats[req.body.message.chat.id].mute = false;
-    }
-    if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|(stupido)?bot( del cazzo| inutile)?|deficiente|porco ?dio|dio ?cane)?/i) > -1) {
+    } else if (req.body.message.text.search(/riavviati ?(ora|adesso|subito|immediatamente)? ?(coglione|(stupido)?bot( del cazzo| inutile)?|deficiente|porco ?dio|dio ?cane)?/i) > -1) {
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Zi badrone, mi sto riavviando'
       });
       shutdown();
-    }
-    if (req.body.message.text.search(/(scarica|cerca|trova|trovami) (delle|dei|degli)? ?(nuove|nuovi)? ?(circolari|annunci)/i) > -1) {
+    } else if (req.body.message.text.search(/sei (ancora)? ?(vivo|attivo|acceso|in vita)\?/i) > -1) {
+      sendMessage({
+        chat_id: req.body.message.chat.id,
+        text: 'Si, certo ;)'
+      });
+    } else if (req.body.message.text.search(/(scarica|cerca|trova|trovami) (delle|dei|degli)? ?(nuove|nuovi)? ?(circolari|annunci)/i) > -1) {
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Sto cercando nuove circolari...'
       });
       checkComs();
-    }
-    if (req.body.message.text.search(/\//) > -1) {
-      var args = req.body.message.text.split(' ');
-      if (args[0] == '/display') {
-        (function (chatId) {
-          var message = '';
-          crawler.crawlComs(function (announcments) {
-            for (var current = 0; current < args[1]; current++) {
-              message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nID: '+announcments[current].comId+'\n------\n';
-            }
-            console.log('message'+message);
-            sendMessage({
-              chat_id: chatId,
-              text: message
-            });
-          });
-        })(req.body.message.chat.id);
-      }
-    }
-    if (!chats[req.body.message.chat.id].mute) {
-      sendMessage({
-        chat_id: req.body.message.chat.id,
-        text: 'received text: \"'+req.body.message.text+'\";'
-      });
+    } else if (req.body.message.text.search(/^\/ultime5$/) > -1) {
+      sendLast(5, req.body.message.chat.id);
+    } else if (req.body.message.text.search(/^\/ultime10$/) > -1) {
+      sendLast(10, req.body.message.chat.id);
     }
   } else {
     if (!chats[req.body.message.chat.id].mute) {
@@ -159,10 +142,7 @@ function checkComs() {
   crawler.crawlComs(function (announcments) {
     announcments.forEach(function (item) {
       Communication.find({ where: { comId: item.comId } }).then(function (com) {
-        if (com) {
-          console.log('old: '+JSON.stringify(item, null, ' '));
-        } else {
-          console.log('new: '+JSON.stringify(item, null, ' '));
+        if (!com) {
           Communication.create({
             comId: item.comId,
             title: item.title,
@@ -176,6 +156,19 @@ function checkComs() {
           });
         }
       });
+    });
+  });
+}
+function sendLast(number, chatId) {
+  var message = '';
+  crawler.crawlComs(function (announcments) {
+    for (var current = 0; current < number; current++) {
+      message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nAllegato: /download'+announcments[current].comId+'\n------\n';
+    }
+    console.log('message'+message);
+    sendMessage({
+      chat_id: chatId,
+      text: message
     });
   });
 }
