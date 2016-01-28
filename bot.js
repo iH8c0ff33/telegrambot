@@ -117,12 +117,19 @@ app.post('/'+telegram.token, function (req, res) {
       });
       checkComs();
     } else if (req.body.message.text.search(/^\/start(@sunCorp_bot)?$/) > -1) {
+      if (subscribedChats.indexOf(req.body.message.chat.id) > -1) {
+        sendMessage({
+          chat_id: req.body.message.chat.id,
+          text: 'Sei gia iscritto'
+        });
+      } else {
+        subscribedChats.push(req.body.message.chat.id);
+        sendMessage({
+          chat_id: req.body.message.chat.id,
+          text: 'Ora sei iscritto'
+        });
+      }
       console.log(subscribedChats);
-      subscribedChats.push(req.body.message.chat.id);
-      sendMessage({
-        chat_id: req.body.message.chat.id,
-        text: 'Ora sei iscritto'
-      });
       console.log(subscribedChats);
     } else if (req.body.message.text.search(/^\/help(@sunCorp_bot)?$/) > -1) {
       sendMessage({
@@ -148,13 +155,13 @@ app.post('/'+telegram.token, function (req, res) {
           });
         });
       })(req.body.message.chat.id);
+    } else if (req.body.message.text.search(/^\/search(@sunCorp_bot)?$/) > -1) {
+      sendMessage({
+        chat_id: req.body.message.chat.id,
+        text: 'Sto cercando...'
+      });
+      checkComs();
     }
-  } else if (req.body.message.text.search(/^\/searchnow(@sunCorp_bot)?$/) > -1) {
-    sendMessage({
-      chat_id: req.body.message.chat.id,
-      text: 'Sto cercando...'
-    });
-    checkComs();
   } else {
     if (!chats[req.body.message.chat.id].mute) {
       request.get(telegram.apiUrl+'sendMessage', { form: {
