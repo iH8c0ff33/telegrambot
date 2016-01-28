@@ -161,6 +161,19 @@ app.post('/'+telegram.token, function (req, res) {
         text: 'Sto cercando...'
       });
       checkComs();
+    } else if (req.body.message.text.search(/^\/stop(@sunCorp_bot)?$/) > -1) {
+      if (subscribedChats.indexOf(req.body.message.chat.id) > -1) {
+        subscribedChats.splice(subscribedChats.indexOf(req.body.message.chat.id), 1);
+        sendMessage({
+          chat_id: req.body.message.chat.id,
+          text: 'Sei stato disiscritto'
+        });
+      } else {
+        sendMessage({
+          chat_id: req.body.message.chat.id,
+          text: 'Non sei iscritto'
+        });
+      }
     }
   } else {
     if (!chats[req.body.message.chat.id].mute) {
@@ -219,10 +232,6 @@ function checkComs() {
   console.log(subscribedChats);
   subscribedChats.forEach(function (chat) {
     console.log(chat);
-    sendMessage({
-      chat_id: chat,
-      text: 'Sei iscritto!'
-    });
   });
   crawler.crawlComs(function (announcments) {
     announcments.forEach(function (item) {
