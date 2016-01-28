@@ -78,6 +78,7 @@ module.exports = {
         res.pipe(stream);
         (function (fileName) {
           res.on('end', function () {
+            console.log('end');
             done(fs.createReadStream(__dirname+'/'+fileName), fileName, function (fileName) {
               fs.unlink(fileName);
             });

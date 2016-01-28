@@ -120,7 +120,7 @@ app.post('/'+telegram.token, function (req, res) {
             document: {
               stream: fileStream,
               name: fileName,
-              type: 'application/pdf'
+              type: 'application/octet-stream'
             }
           }, function () {
             deleteTemp(fileName);
