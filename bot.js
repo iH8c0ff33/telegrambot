@@ -182,10 +182,24 @@ function checkComs() {
             category: item.category,
             date: item.date
           }).then(function () {
-            sendMessage({
-              chat_id: chatId,
-              text: 'new: '+JSON.stringify(item, null, ' ')
-            });
+            (function (com) {
+              crawler.download(com.comId, function (fileStream, fileName, deleteTemp) {
+                sendMessage({
+                  chat_id: chatId,
+                  text: '-Nuova Circolare-\nTitolo: '+com.title+'\nData: '+com.date+'------'
+                });
+                sendDocument({
+                  chat_id: chatId,
+                  document: {
+                    stream: fileStream,
+                    name: fileName,
+                    type: 'application/octet-stream'
+                  }
+                }, function () {
+                  deleteTemp(fileName);
+                });
+              });
+            })(item);
           });
         }
       });
@@ -193,7 +207,7 @@ function checkComs() {
   });
 }
 function sendLast(number, chatId) {
-  var message = '';
+  var message = '-Ultime '+number+' circolari-';
   crawler.crawlComs(function (announcments) {
     for (var current = 0; current < number; current++) {
       message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nAllegato: /download'+announcments[current].comId+'\n------\n';
