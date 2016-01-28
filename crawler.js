@@ -72,7 +72,7 @@ module.exports = {
         }
       }, function (_err, res, body) {
         var fileNameRegexp = /filename=\"(.*)\"/gi;
-        var filename = fileNameRegexp.exec(res.headers['Content-Disposition'])[1];
+        var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
         var stream = fs.createWriteStream(__dirname+'/'+filename);
         res.pipe(stream);
         (function (fileName) {
