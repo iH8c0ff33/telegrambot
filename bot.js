@@ -12,17 +12,23 @@ var telegram = require(__dirname+'/config/telegram.js');
 // Database connection
 var db = new sequelize(process.env.OPENSHIFT_POSTGRESQL_DB_URL+'/telegrambot');
 var chats = {};
+var subscribedChats = [];
 // Database models
 var Chat = db.import(__dirname+'/models/chat.js');
 var Communication = db.import(__dirname+'/models/communication.js');
+var Settings = db.import(__dirname+'/models/subscribedChat.js');
 Chat.sync();
 Communication.sync();
+Settings.sync();
 // Load chats from database
 Chat.findAll().then(function (dbChats) {
   dbChats.forEach(function (element) {
     chats[element.chatId] = element.chat;
   });
   console.log(chats);
+});
+Settings.find({ where: { name: 'subscribedChats' } }).then(function (item) {
+  subscribedChats = item.data;
 });
 // Bot configuration
 function sendMessage(message) {
@@ -108,10 +114,16 @@ app.post('/'+telegram.token, function (req, res) {
         text: 'Sto cercando nuove circolari...'
       });
       checkComs();
+    } else if (req.body.message.text.search(/^\/start(@sunCorp_bot)?$/) > -1) {
+      subscribedChats.push(req.body.message.chat.id);
+      sendMessage({
+        chat_id: req.body.message.chat.id,
+        text: 'Ora sei iscritto'
+      });
     } else if (req.body.message.text.search(/^\/help(@sunCorp_bot)?$/) > -1) {
       sendMessage({
         chat_id: req.body.message.chat.id,
-        text: 'Ciao, sono BotBacheca e invio aggiornamenti sulle nuove circolare presenti sul registro elettronico.\nI miei comandi sono:\n/help - mostra tutti i comandi\n/ultime5 - invia le ultime 5 circolari\n/ultime10 - invia le ultime 10 circolari'
+        text: 'Ciao, sono BotBacheca e invio aggiornamenti sulle nuove circolari presenti sul registro elettronico.\nI miei comandi sono:\n/help - mostra tutti i comandi\n/ultime5 - invia le ultime 5 circolari\n/ultime10 - invia le ultime 10 circolari'
       });
     } else if (req.body.message.text.search(/^\/ultime5(@sunCorp_bot)?$/) > -1) {
       sendLast(5, req.body.message.chat.id);
@@ -133,6 +145,12 @@ app.post('/'+telegram.token, function (req, res) {
         });
       })(req.body.message.chat.id);
     }
+  } else if (req.body.message.text.search(/^\/searchnow(@sunCorp_bot)?$/) > -1) {
+    sendMessage({
+      chat_id: req.body.message.chat.id,
+      text: 'Sto cercando...'
+    });
+    checkComs();
   } else {
     if (!chats[req.body.message.chat.id].mute) {
       request.get(telegram.apiUrl+'sendMessage', { form: {
@@ -150,6 +168,16 @@ function shutdown() {
   setTimeout(function () {
     process.exit(0);
   }, 3000);
+  Settings.find({ where: { name: 'subscribedChats' } }).then(function (item) {
+    if (item) {
+      item.update({ data: subscribedChats });
+    } else {
+      Settings.create({
+        name: 'subscribedChats',
+        data: subscribedChats
+      });
+    }
+  });
   for (var chat in chats) {
     if (chats.hasOwnProperty(chat)) {
       console.log('finding '+chat);
@@ -176,7 +204,12 @@ function shutdown() {
   }
 }
 function checkComs() {
-  var chatId = '-69312418';
+  subscribedChats.forEach(function (chat) {
+    sendMessage({
+      chat_id: chat,
+      text: 'Sei iscritto!'
+    });
+  });
   crawler.crawlComs(function (announcments) {
     announcments.forEach(function (item) {
       Communication.find({ where: { comId: item.comId } }).then(function (com) {
@@ -189,19 +222,20 @@ function checkComs() {
           }).then(function () {
             (function (com) {
               crawler.download(com.comId, function (fileStream, fileName, deleteTemp) {
-                sendMessage({
-                  chat_id: chatId,
-                  text: '-Nuova Circolare-\nTitolo: '+com.title+'\nData: '+com.date+'------'
-                });
-                sendDocument({
-                  chat_id: chatId,
-                  document: {
-                    stream: fileStream,
-                    name: fileName,
-                    type: 'application/octet-stream'
-                  }
-                }, function () {
-                  deleteTemp(fileName);
+                setTimeout(90000, deleteTemp(fileName));
+                subscribedChats.forEach(function (chatId) {
+                  sendMessage({
+                    chat_id: chatId,
+                    text: '-Nuova Circolare-\nTitolo: '+com.title+'\nData: '+com.date+'------'
+                  });
+                  sendDocument({
+                    chat_id: chatId,
+                    document: {
+                      stream: fileStream,
+                      name: fileName,
+                      type: 'application/octet-stream'
+                    }
+                  });
                 });
               });
             })(item);
