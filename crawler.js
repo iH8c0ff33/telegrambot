@@ -69,24 +69,18 @@ module.exports = {
         formData: {
           action: 'file_download',
           com_id: comId
-        }
-      }, function (_err, res) {
+        },
+        encoding: null
+      }, function (_err, res, body) {
         var fileNameRegexp = /filename=(.*)/gi;
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
-        (function (fileName, response) {
-          console.log('creating stream');
-          var stream = fs.createWriteStream(fileName);
-          stream.on('finish', function () {
-            console.log('finish');
-            stream.close(function () {
-              done(fs.createReadStream(__dirname+'/'+fileName), fileName, function (fileName) {
-                fs.unlink(fileName);
-              });
+        (function (fileName, data) {
+          fs.writeFile(__dirname+'/'+fileName, data, function () {
+            done(fs.createReadStream(__dirname+'/'+fileName), fileName, function (fileName) {
+              fs.unlink(fileName);
             });
           });
-          response.pipe(stream).on('error', function (err) { console.log(err); });
-          stream.on('error', function (err) { console.log(err); });
-        })(filename, res);
+        })(filename, body);
       });
     });
   }
