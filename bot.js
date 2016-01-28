@@ -207,7 +207,7 @@ function checkComs() {
   });
 }
 function sendLast(number, chatId) {
-  var message = '-Ultime '+number+' circolari-';
+  var message = '-Ultime '+number+' circolari-\n';
   crawler.crawlComs(function (announcments) {
     for (var current = 0; current < number; current++) {
       message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nAllegato: /download'+announcments[current].comId+'\n------\n';
