@@ -70,13 +70,21 @@ module.exports = {
           action: 'file_download',
           com_id: comId
         }
-      }, function (_err, _res, body) {
-        fs.writeFile(comId+'.pdf', body, function() {
-          //fs.createReadStream(comId+'.pdf')
-          done(body, comId, function (comId) {
-            fs.unlink(comId+'.pdf');
+      }, function (_err, res, body) {
+        var fileNameRegexp = /filename=\"(.*)\"/gi;
+        var filename = fileNameRegexp.exec(res.headers['Content-Disposition'])[1];
+        var stream = fs.createWriteStream(__dirname+'/'+filename);
+        res.pipe(stream);
+        (function (fileName) {
+          res.on('end', function () {
+            fs.createReadStream(__dirname+'/'+fileName);
+            done(body, comId, function (comId) {
+              done(fs.unlink(comId+'.pdf'), comId, function (fileName) {
+                fs.unlink(fileName);
+              });
+            });
           });
-        });
+        })(filename);
       });
     });
   }

@@ -114,16 +114,16 @@ app.post('/'+telegram.token, function (req, res) {
       sendLast(10, req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/download/) > -1) {
       (function (chatId) {
-        crawler.download(req.body.message.text.match(/\d+/)[0], function (fileStream, comId, deleteTemp) {
+        crawler.download(req.body.message.text.match(/\d+/)[0], function (fileStream, fileName, deleteTemp) {
           sendDocument({
             chat_id: chatId,
             document: {
               stream: fileStream,
-              name: comId+'.pdf',
+              name: fileName,
               type: 'application/pdf'
             }
           }, function () {
-            deleteTemp(comId);
+            deleteTemp(fileName);
           });
         });
       })(req.body.message.chat.id);
