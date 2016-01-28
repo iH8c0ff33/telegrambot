@@ -70,17 +70,23 @@ module.exports = {
           action: 'file_download',
           com_id: comId
         }
-      }, function (_err, res, body) {
-        console.log(require('crypto').createHash('md5').update(new Buffer(body)).digest('hex'));
+      }, function (_err, res) {
         var fileNameRegexp = /filename=(.*)/gi;
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
-        (function (fileName) {
-          fs.writeFile(__dirname+'/'+filename, body, function () {
-            done(fs.createReadStream(__dirname+'/'+fileName), fileName, function (fileName) {
-              fs.unlink(fileName);
+        (function (fileName, response) {
+          console.log('creating stream');
+          var stream = fs.createWriteStream(fileName);
+          stream.on('finish', function () {
+            console.log('finish');
+            stream.close(function () {
+              done(fs.createReadStream(__dirname+'/'+fileName), fileName, function (fileName) {
+                fs.unlink(fileName);
+              });
             });
           });
-        })(filename);
+          response.pipe(stream).on('error', function (err) { console.log(err); });
+          stream.on('error', function (err) { console.log(err); });
+        })(filename, res);
       });
     });
   }
