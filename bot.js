@@ -207,6 +207,7 @@ function shutdown() {
 }
 function checkComs() {
   subscribedChats.forEach(function (chat) {
+    console.log(chat);
     sendMessage({
       chat_id: chat,
       text: 'Sei iscritto!'
