@@ -70,7 +70,7 @@ module.exports = {
           action: 'file_download',
           com_id: comId
         }
-      }, function (_err, res, body) {
+      }, function (_err, res, _body) {
         var fileNameRegexp = /filename=(.*)/gi;
         console.log(res.headers);
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
@@ -78,11 +78,8 @@ module.exports = {
         res.pipe(stream);
         (function (fileName) {
           res.on('end', function () {
-            fs.createReadStream(__dirname+'/'+fileName);
-            done(body, comId, function (comId) {
-              done(fs.unlink(comId+'.pdf'), comId, function (fileName) {
-                fs.unlink(fileName);
-              });
+            done(fs.createReadStream(__dirname+'/'+fileName), fileName, function (fileName) {
+              fs.unlink(fileName);
             });
           });
         })(filename);
