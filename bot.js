@@ -97,7 +97,7 @@ app.post('/'+telegram.token, function (req, res) {
         text: 'Zi badrone, mi sto riavviando'
       });
       shutdown();
-    } else if (req.body.message.text.search(/sei (ancora)? ?(vivo|attivo|acceso|in vita)\?/i) > -1) {
+    } else if (req.body.message.text.search(/sei (ancora)? ?(vivo|attivo|acceso|sveglio|in vita) ?(coglione|(stupido)?bot( del cazzo| inutile)?|deficiente|porco ?dio|dio ?cane)?\?/i) > -1) {
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Si, certo ;)'
@@ -108,6 +108,11 @@ app.post('/'+telegram.token, function (req, res) {
         text: 'Sto cercando nuove circolari...'
       });
       checkComs();
+    } else if (req.body.message.text.search(/^\/help$/) > -1) {
+      sendMessage({
+        chat_id: req.body.message.chat.id,
+        text: 'Ciao, sono BotBacheca e invio aggiornamenti sulle nuove circolare presenti sul registro elettronico.\nI miei comandi sono:\n/help - mostra tutti i comandi\n/ultime5 - invia le ultime 5 circolari\n/ultime10 - invia le ultime 10 circolari'
+      });
     } else if (req.body.message.text.search(/^\/ultime5$/) > -1) {
       sendLast(5, req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/ultime10$/) > -1) {
