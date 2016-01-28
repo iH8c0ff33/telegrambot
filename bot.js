@@ -249,7 +249,7 @@ function checkComs() {
           }).then(function () {
             (function (com) {
               crawler.download(com.comId, function (fileStream, fileName, deleteTemp) {
-                setTimeout(90000, deleteTemp(fileName));
+                setTimeout(30000, deleteTemp(fileName));
                 subscribedChats.forEach(function (chatId) {
                   sendMessage({
                     chat_id: chatId,
