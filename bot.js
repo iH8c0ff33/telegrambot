@@ -117,11 +117,13 @@ app.post('/'+telegram.token, function (req, res) {
       });
       checkComs();
     } else if (req.body.message.text.search(/^\/start(@sunCorp_bot)?$/) > -1) {
+      console.log(subscribedChats);
       subscribedChats.push(req.body.message.chat.id);
       sendMessage({
         chat_id: req.body.message.chat.id,
         text: 'Ora sei iscritto'
       });
+      console.log(subscribedChats);
     } else if (req.body.message.text.search(/^\/help(@sunCorp_bot)?$/) > -1) {
       sendMessage({
         chat_id: req.body.message.chat.id,
@@ -206,6 +208,8 @@ function shutdown() {
   }
 }
 function checkComs() {
+  console.log('searching...');
+  console.log(subscribedChats);
   subscribedChats.forEach(function (chat) {
     console.log(chat);
     sendMessage({
