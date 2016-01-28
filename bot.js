@@ -28,7 +28,9 @@ Chat.findAll().then(function (dbChats) {
   console.log(chats);
 });
 Settings.find({ where: { name: 'subscribedChats' } }).then(function (item) {
-  subscribedChats = item.data;
+  if (item) {
+    subscribedChats = item.data;
+  }
 });
 // Bot configuration
 function sendMessage(message) {
