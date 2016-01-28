@@ -230,6 +230,10 @@ function shutdown() {
 function checkComs() {
   console.log('searching...');
   console.log(subscribedChats);
+  sendMessage({
+    chat_id: '36798536',
+    text: 'debug: searching...'
+  });
   subscribedChats.forEach(function (chat) {
     console.log(chat);
   });
