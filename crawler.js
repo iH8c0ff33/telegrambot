@@ -71,6 +71,7 @@ module.exports = {
           com_id: comId
         }
       }, function (_err, res, body) {
+        console.log(new Buffer(body));
         var fileNameRegexp = /filename=(.*)/gi;
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
         (function (fileName) {
