@@ -83,5 +83,51 @@ module.exports = {
         })(filename, body);
       });
     });
+  },
+  crawlFiles: function (done) {
+    request({
+      url: 'https://web.spaggiari.eu/home/app/default/login.php',
+      method: 'POST',
+      jar: cookieJar,
+      formData: {
+        action: 'login.php',
+        custcode: 'TOLS0005',
+        login: 'S1122773T',
+        password: 'md39185l'
+      }
+    }, function () {
+      request({
+        url: 'https://web.spaggiari.eu/cvv/app/default/didattica_genitori.php',
+        method: 'GET',
+        jar: cookieJar
+      }, function (_err, _res, body) {
+        var $ = cheerio.load(body);
+        var files = [];
+        $('.row_parent').each(function () {
+          (function (folder) {
+            $('.master_'+folder.folderId).each(function () {
+              files.push({
+                name: $(this).find('.contenuto_desc').find('div').find('.row_contenuto_desc').text(),
+                author: folder.prof,
+                folder: folder.name,
+                fileId: $(this).attr('contenuto_id')
+              });
+            });
+          })({
+            name: $(this).text().split('\n').join(''),
+            prof: $(this).prev().find('.bluetext').text().split('\n').join('') || (function (element) {
+              var author = '';
+              do {
+                element = $(element).prev();
+                author = $(element).find('.bluetext').text().split('\n').join('');
+              } while (author == '');
+              return author;
+            })(this),
+            folderId: $(this).attr('folder_id')
+          });
+        });
+        return done(files);
+      });
+    });
   }
 };
