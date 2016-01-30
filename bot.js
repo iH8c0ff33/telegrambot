@@ -270,9 +270,8 @@ function checkComs() {
               category: item.category,
               date: item.date
             }).then(function (createdCom) {
-              crawler.downloadCom(createdCom.comId, function (fileStream, fileName, deleteTemp) {
-                setTimeout(30000, deleteTemp(fileName));
-                subscribedChats.forEach(function (chatId) {
+              subscribedChats.forEach(function (chatId) {
+                crawler.downloadCom(createdCom, function (fileStream, fileName, deleteTemp) {
                   sendMessage({
                     chat_id: chatId,
                     text: '-Nuova Circolare-\nTitolo: '+createdCom.title+'\nData: '+createdCom.date+'------'
@@ -284,6 +283,8 @@ function checkComs() {
                       name: fileName,
                       type: 'application/octet-stream'
                     }
+                  }, function () {
+                    deleteTemp(fileName);
                   });
                 });
               });
