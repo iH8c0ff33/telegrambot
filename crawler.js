@@ -49,7 +49,7 @@ module.exports = {
       });
     });
   },
-  download: function (comId, done) {
+  downloadCom: function (comId, done) {
     request({
       url: 'https://web.spaggiari.eu/home/app/default/login.php',
       method: 'POST',

@@ -17,9 +17,11 @@ var subscribedChats = [];
 var Chat = db.import(__dirname+'/models/chat.js');
 var Communication = db.import(__dirname+'/models/communication.js');
 var Settings = db.import(__dirname+'/models/subscribedChat.js');
+var File = db.import(__dirname+'/models/file.js');
 Chat.sync();
 Communication.sync();
 Settings.sync();
+File.sync();
 // Load chats from database
 Chat.findAll().then(function (dbChats) {
   dbChats.forEach(function (element) {
@@ -142,7 +144,7 @@ app.post('/'+telegram.token, function (req, res) {
       sendLast(10, req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/download/) > -1) {
       (function (chatId) {
-        crawler.download(req.body.message.text.match(/\d+/)[0], function (fileStream, fileName, deleteTemp) {
+        crawler.downloadCom(req.body.message.text.match(/\d+/)[0], function (fileStream, fileName, deleteTemp) {
           sendDocument({
             chat_id: chatId,
             document: {
@@ -156,11 +158,31 @@ app.post('/'+telegram.token, function (req, res) {
         });
       })(req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/search(@sunCorp_bot)?$/) > -1) {
-      sendMessage({
-        chat_id: req.body.message.chat.id,
-        text: 'Sto cercando...'
-      });
-      checkComs();
+      if (req.body.message.from.username == 'iH8c0ff33') {
+        sendMessage({
+          chat_id: req.body.message.chat.id,
+          text: 'Sto cercando...'
+        });
+        checkComs();
+        checkFiles();
+      } else {
+        sendMessage({
+          chat_id: req.body.message.chat.id,
+          text: 'Chi ti credi di essere? Questo è un comando troppo potente per te'
+        });
+      }
+    } else if (req.body.message.text.search(/^\/showsubs(@sunCorp_bot)?$/) > -1) {
+      if (req.body.message.from.username == 'iH8c0ff33') {
+        sendMessage({
+          chat_id: req.body.message.chat.id,
+          text: 'subscribedChats = '+JSON.stringify(subscribedChats, null, ' ')
+        });
+      } else {
+        sendMessage({
+          chat_id: req.body.message.chat.id,
+          text: 'Chi ti credi di essere? Questo è un comando troppo potente per te'
+        });
+      }
     } else if (req.body.message.text.search(/^\/stop(@sunCorp_bot)?$/) > -1) {
       if (subscribedChats.indexOf(req.body.message.chat.id) > -1) {
         subscribedChats.splice(subscribedChats.indexOf(req.body.message.chat.id), 1);
@@ -238,22 +260,22 @@ function checkComs() {
     console.log(chat);
   });
   crawler.crawlComs(function (announcments) {
-    announcments.forEach(function (item) {
-      Communication.find({ where: { comId: item.comId } }).then(function (com) {
-        if (!com) {
-          Communication.create({
-            comId: item.comId,
-            title: item.title,
-            category: item.category,
-            date: item.date
-          }).then(function () {
-            (function (com) {
-              crawler.download(com.comId, function (fileStream, fileName, deleteTemp) {
+    announcments.forEach(function (announcment) {
+      (function (item) {
+        Communication.find({ where: { comId: item.comId } }).then(function (com) {
+          if (!com) {
+            Communication.create({
+              comId: item.comId,
+              title: item.title,
+              category: item.category,
+              date: item.date
+            }).then(function (createdCom) {
+              crawler.downloadCom(createdCom.comId, function (fileStream, fileName, deleteTemp) {
                 setTimeout(30000, deleteTemp(fileName));
                 subscribedChats.forEach(function (chatId) {
                   sendMessage({
                     chat_id: chatId,
-                    text: '-Nuova Circolare-\nTitolo: '+com.title+'\nData: '+com.date+'------'
+                    text: '-Nuova Circolare-\nTitolo: '+createdCom.title+'\nData: '+createdCom.date+'------'
                   });
                   sendDocument({
                     chat_id: chatId,
@@ -265,10 +287,35 @@ function checkComs() {
                   });
                 });
               });
-            })(item);
-          });
-        }
-      });
+            });
+          }
+        });
+      })(announcment);
+    });
+  });
+}
+function checkFiles() {
+  crawler.crawlFiles(function (files) {
+    files.forEach(function (file) {
+      (function (item) {
+        File.find({ where: { fileId: file.fileId } }).then(function (foundFile) {
+          if (!foundFile) {
+            File.create({
+              fileId: item.fileId,
+              name: item.name,
+              author: item.author,
+              folder: item.folder
+            }).then(function (createdFile) {
+              subscribedChats.forEach(function (chatId) {
+                sendMessage({
+                  chat_id: chatId,
+                  text: '-Nuovo File-\nTitolo: '+createdFile.name+'\nAutore: '+createdFile.author+'\nCartella: '+createdFile.folder
+                });
+              });
+            });
+          }
+        });
+      })(file);
     });
   });
 }
@@ -286,4 +333,5 @@ function sendLast(number, chatId) {
   });
 }
 setInterval(checkComs, 900000);
+setInterval(checkFiles, 900000);
 process.on('SIGTERM', shutdown);
