@@ -139,13 +139,15 @@ module.exports = {
       request({
         url: 'https://web.spaggiari.eu/sif/app/default/didattica.php',
         method: 'POST',
-        jar:cookieJar,
+        jar: cookieJar,
         formData: {
           a: 'downloadContenuto',
           contenuto_id: fileId
         },
         encoding: null
       }, function (_err, res, body) {
+        console.log('downloading '+fileId);
+        console.log(body);
         var fileNameRegexp = /filename=(.*)/gi;
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
         done(new Buffer(body), filename);
