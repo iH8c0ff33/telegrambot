@@ -19,9 +19,9 @@ var Communication = db.import(__dirname+'/models/communication.js');
 var Settings = db.import(__dirname+'/models/settings.js');
 var File = db.import(__dirname+'/models/file.js');
 Chat.sync();
-Communication.sync({ force: true });
+Communication.sync();
 Settings.sync();
-File.sync({ force: true });
+File.sync();
 // Load chats from database
 Chat.findAll().then(function (dbChats) {
   dbChats.forEach(function (element) {
