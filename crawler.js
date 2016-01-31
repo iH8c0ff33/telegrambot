@@ -1,6 +1,5 @@
 var request = require('request');
 var cheerio = require('cheerio');
-var fs = require('fs');
 var cookieJar = request.jar();
 
 module.exports = {
@@ -74,7 +73,7 @@ module.exports = {
       }, function (_err, res, body) {
         var fileNameRegexp = /filename=(.*)/gi;
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
-        done(body, filename);
+        done(new Buffer(body), filename);
       });
     });
   },
