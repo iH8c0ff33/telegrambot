@@ -27,7 +27,6 @@ Chat.findAll().then(function (dbChats) {
   dbChats.forEach(function (element) {
     chats[element.chatId] = element.chat;
   });
-  console.log(chats);
 });
 Settings.find({ where: { name: 'subscribedChats' } }).then(function (item) {
   if (item) {
@@ -128,8 +127,6 @@ app.post('/'+telegram.token, function (req, res) {
           text: 'Ora sei iscritto'
         });
       }
-      console.log(subscribedChats);
-      console.log(subscribedChats);
     } else if (req.body.message.text.search(/^\/help(@sunCorp_bot)?$/) > -1) {
       sendMessage({
         chat_id: req.body.message.chat.id,
@@ -228,19 +225,15 @@ function shutdown() {
   });
   for (var chat in chats) {
     if (chats.hasOwnProperty(chat)) {
-      console.log('finding '+chat);
       (function (chat) {
         Chat.find({ where: {
           chatId: chat
         } }).then(function (dbChat) {
-          console.log(chat);
           if (dbChat) {
-            console.log('updating '+chat);
             return dbChat.update({
               chat: chats[chat]
             });
           } else {
-            console.log('creating '+chat);
             return Chat.create({
               chatId: chat,
               chat: chats[chat]
@@ -261,7 +254,6 @@ function checkComs() {
       (function (item) {
         Communication.find({ where: { comId: item.comId } }).then(function (com) {
           if (!com) {
-            console.log('new comId: '+item.comId);
             crawler.downloadCom(item.comId, function (file, fileName) {
               Communication.create({
                 comId: item.comId,
@@ -297,18 +289,30 @@ function checkFiles() {
   crawler.crawlFiles(function (files) {
     files.forEach(function (file) {
       (function (item) {
-        File.find({ where: { fileId: file.fileId } }).then(function (foundFile) {
+        File.find({ where: { fileId: item.fileId } }).then(function (foundFile) {
           if (!foundFile) {
-            File.create({
-              fileId: item.fileId,
-              name: item.name,
-              author: item.author,
-              folder: item.folder
-            }).then(function (createdFile) {
-              subscribedChats.forEach(function (chatId) {
-                sendMessage({
-                  chat_id: chatId,
-                  text: '-Nuovo File-\nTitolo: '+createdFile.name+'\nAutore: '+createdFile.author+'\nCartella: '+createdFile.folder
+            crawler.downloadFile(item.fileId, function (file, fileName) {
+              File.create({
+                fileId: item.fileId,
+                name: item.name,
+                author: item.author,
+                folder: item.folder,
+                fileName: fileName,
+                file: file
+              }).then(function (createdFile) {
+                subscribedChats.forEach(function (chatId) {
+                  sendMessage({
+                    chat_id: chatId,
+                    text: '-Nuovo File-\nTitolo: '+createdFile.name+'\nAutore: '+createdFile.author+'\nCartella: '+createdFile.folder+'------'
+                  });
+                  sendDocument({
+                    chat_id: chatId,
+                    document: {
+                      stream: createdFile.file,
+                      name: createdFile.fileName,
+                      type: 'application/octet-stream'
+                    }
+                  });
                 });
               });
             });
@@ -324,7 +328,6 @@ function sendLast(number, chatId) {
     for (var current = 0; current < number; current++) {
       message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nAllegato: /download'+announcments[current].comId+'\n------\n';
     }
-    console.log('message'+message);
     sendMessage({
       chat_id: chatId,
       text: message

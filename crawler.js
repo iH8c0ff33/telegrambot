@@ -122,5 +122,34 @@ module.exports = {
         return done(files);
       });
     });
+  },
+  downloadFile: function (fileId, done) {
+    request({
+      url: 'https://web.spaggiari.eu/home/app/default/login.php',
+      method: 'POST',
+      jar: cookieJar,
+      formData: {
+        action: 'login.php',
+        custcode: 'TOLS0005',
+        login: 'S1122773T',
+        password: 'md39185l'
+      }
+    }, function (err) {
+      if (err) { throw err; }
+      request({
+        url: 'https://web.spaggiari.eu/sif/app/default/didattica.php',
+        method: 'POST',
+        jar:cookieJar,
+        formData: {
+          a: 'downloadContenuto',
+          contenuto_id: fileId
+        },
+        encoding: null
+      }, function (_err, res, body) {
+        var fileNameRegexp = /filename=(.*)/gi;
+        var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
+        done(new Buffer(body), filename);
+      });
+    });
   }
 };
