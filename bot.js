@@ -292,7 +292,7 @@ function checkFiles() {
         console.log('searching for fileId:'+item.fileId);
         File.find({ where: { fileId: item.fileId } }).then(function (foundFile) {
           if (!foundFile) {
-            console.log('new fileId: '+item.fileId);
+            console.log('creating: '+JSON.stringigy(item, null, ' '));
             crawler.downloadFile(item.fileId, function (file, fileName) {
               File.create({
                 fileId: item.fileId,
