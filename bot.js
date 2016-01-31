@@ -289,10 +289,8 @@ function checkFiles() {
   crawler.crawlFiles(function (files) {
     files.forEach(function (file) {
       (function (item) {
-        console.log('searching for fileId:'+item.fileId);
         File.find({ where: { fileId: item.fileId } }).then(function (foundFile) {
           if (!foundFile) {
-            console.log('creating: '+JSON.stringify(item, null, ' '));
             crawler.downloadFile(item.fileId, function (file, fileName) {
               File.create({
                 fileId: item.fileId,
