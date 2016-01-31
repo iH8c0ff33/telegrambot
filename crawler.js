@@ -74,13 +74,7 @@ module.exports = {
       }, function (_err, res, body) {
         var fileNameRegexp = /filename=(.*)/gi;
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
-        (function (fileName, data) {
-          fs.writeFile(__dirname+'/'+fileName, data, function () {
-            done(fs.createReadStream(__dirname+'/'+fileName), fileName, function (fileName) {
-              fs.unlink(fileName);
-            });
-          });
-        })(filename, body);
+        done(body, filename);
       });
     });
   },

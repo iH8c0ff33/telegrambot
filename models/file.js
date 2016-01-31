@@ -16,6 +16,8 @@ module.exports = function (db, sequelize) {
     folder: {
       type: sequelize.STRING,
       allowNull: false
-    }
+    },
+    fileName: sequelize.STRING,
+    file: sequelize.BLOB
   });
 };

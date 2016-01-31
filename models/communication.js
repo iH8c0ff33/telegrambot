@@ -16,6 +16,8 @@ module.exports = function(db, sequelize) {
     date: {
       type: sequelize.STRING,
       allowNull: false
-    }
+    },
+    attachmentName: sequelize.STRING,
+    attachment: sequelize.BLOB
   });
 };

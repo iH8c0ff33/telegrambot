@@ -3,7 +3,7 @@ var express = require('express');
 var http = require('http');
 var bodyParser = require('body-parser');
 var request = require('request');
-var fs = require('fs');
+//var fs = require('fs');
 var sequelize = require('sequelize');
 var crawler = require(__dirname+'/crawler.js');
 // Load configs
@@ -16,10 +16,10 @@ var subscribedChats = [];
 // Database models
 var Chat = db.import(__dirname+'/models/chat.js');
 var Communication = db.import(__dirname+'/models/communication.js');
-var Settings = db.import(__dirname+'/models/subscribedChat.js');
+var Settings = db.import(__dirname+'/models/settings.js');
 var File = db.import(__dirname+'/models/file.js');
 Chat.sync();
-Communication.sync();
+Communication.sync({ force: true });
 Settings.sync();
 File.sync();
 // Load chats from database
@@ -46,16 +46,16 @@ function sendMessage(message) {
     parse_mode: message.parse_mode
   } });
 }
-function sendPhoto(message) {
-  if (!message.chat_id || !message.photoPath) {
-    return console.log('ERR: empty chat_id or photoPath');
-  }
-  request.get(telegram.apiUrl+'sendPhoto', { formData: {
-    chat_id: message.chat_id,
-    photo: fs.createReadStream(message.photo),
-    caption: message.caption
-  } });
-}
+// function sendPhoto(message) {
+//   if (!message.chat_id || !message.photoPath) {
+//     return console.log('ERR: empty chat_id or photoPath');
+//   }
+//   request.get(telegram.apiUrl+'sendPhoto', { formData: {
+//     chat_id: message.chat_id,
+//     photo: fs.createReadStream(message.photo),
+//     caption: message.caption
+//   } });
+// }
 function sendDocument(message, done) {
   if (!message.chat_id || !message.document) {
     return console.log('ERR: empty chat_id or documentPath');
@@ -71,7 +71,7 @@ function sendDocument(message, done) {
     }
   } }, function (err) {
     if (err) { console.log(err); }
-    done();
+    return done();
   });
 }
 // Express
@@ -144,17 +144,22 @@ app.post('/'+telegram.token, function (req, res) {
       sendLast(10, req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/download/) > -1) {
       (function (chatId) {
-        crawler.downloadCom(req.body.message.text.match(/\d+/)[0], function (fileStream, fileName, deleteTemp) {
-          sendDocument({
-            chat_id: chatId,
-            document: {
-              stream: fileStream,
-              name: fileName,
-              type: 'application/octet-stream'
-            }
-          }, function () {
-            deleteTemp(fileName);
-          });
+        Communication.find({ where: { comID: req.body.message.text.match(/\d+/)[0] } }).then(function (com) {
+          if (!com) {
+            sendMessage({
+              chat_id: chatId,
+              text: 'La circolare richiesta non è disponibile'
+            });
+          } else {
+            sendDocument({
+              chat_id: chatId,
+              document: {
+                stream: com.attachment,
+                name: com.attachmentName,
+                type: 'application/octet-stream'
+              }
+            });
+          }
         });
       })(req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/search(@sunCorp_bot)?$/) > -1) {
@@ -250,28 +255,25 @@ function shutdown() {
   }
 }
 function checkComs() {
-  console.log('searching...');
-  console.log(subscribedChats);
   sendMessage({
     chat_id: '36798536',
     text: 'debug: searching...'
-  });
-  subscribedChats.forEach(function (chat) {
-    console.log(chat);
   });
   crawler.crawlComs(function (announcments) {
     announcments.forEach(function (announcment) {
       (function (item) {
         Communication.find({ where: { comId: item.comId } }).then(function (com) {
           if (!com) {
-            Communication.create({
-              comId: item.comId,
-              title: item.title,
-              category: item.category,
-              date: item.date
-            }).then(function (createdCom) {
-              subscribedChats.forEach(function (chatId) {
-                crawler.downloadCom(createdCom, function (fileStream, fileName, deleteTemp) {
+            crawler.downloadCom(item.comId, function (file, fileName) {
+              Communication.create({
+                comId: item.comId,
+                title: item.title,
+                category: item.category,
+                date: item.date,
+                attachmentName: fileName,
+                attachment: file
+              }).then(function (createdCom) {
+                subscribedChats.forEach(function (chatId) {
                   sendMessage({
                     chat_id: chatId,
                     text: '-Nuova Circolare-\nTitolo: '+createdCom.title+'\nData: '+createdCom.date+'------'
@@ -279,12 +281,10 @@ function checkComs() {
                   sendDocument({
                     chat_id: chatId,
                     document: {
-                      stream: fileStream,
-                      name: fileName,
+                      stream: createdCom.attachment,
+                      name: createdCom.attachmentName,
                       type: 'application/octet-stream'
                     }
-                  }, function () {
-                    deleteTemp(fileName);
                   });
                 });
               });
