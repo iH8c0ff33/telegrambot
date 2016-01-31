@@ -163,7 +163,7 @@ app.post('/'+telegram.token, function (req, res) {
           text: 'Sto cercando...'
         });
         checkComs();
-        // checkFiles();
+        checkFiles();
       } else {
         sendMessage({
           chat_id: req.body.message.chat.id,
