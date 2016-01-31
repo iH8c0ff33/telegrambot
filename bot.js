@@ -144,7 +144,7 @@ app.post('/'+telegram.token, function (req, res) {
       sendLast(10, req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/download/) > -1) {
       (function (chatId) {
-        Communication.find({ where: { comID: req.body.message.text.match(/\d+/)[0] } }).then(function (com) {
+        Communication.find({ where: { comId: req.body.message.text.match(/\d+/)[0] } }).then(function (com) {
           if (!com) {
             sendMessage({
               chat_id: chatId,
