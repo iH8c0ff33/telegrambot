@@ -300,7 +300,7 @@ function checkFiles() {
                 author: item.author,
                 folder: item.folder,
                 fileName: fileName,
-                file: file
+                file: 'testonly'
               }).then(function (createdFile) {
                 subscribedChats.forEach(function (chatId) {
                   sendMessage({
