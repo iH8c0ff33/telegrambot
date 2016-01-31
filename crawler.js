@@ -73,7 +73,7 @@ module.exports = {
       }, function (_err, res, body) {
         var fileNameRegexp = /filename=(.*)/gi;
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
-        done(new Buffer(body), filename);
+        done(body, filename);
       });
     });
   },
@@ -147,10 +147,10 @@ module.exports = {
         encoding: null
       }, function (_err, res, body) {
         console.log('downloading '+fileId);
-        console.log(body);
+        console.log(body.toString());
         var fileNameRegexp = /filename=(.*)/gi;
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
-        done(new Buffer(body), filename);
+        done(body, filename);
       });
     });
   }
