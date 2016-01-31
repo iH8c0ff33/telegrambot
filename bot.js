@@ -56,7 +56,7 @@ function sendMessage(message) {
 //     caption: message.caption
 //   } });
 // }
-function sendDocument(message, done) {
+function sendDocument(message) {
   if (!message.chat_id || !message.document) {
     return console.log('ERR: empty chat_id or documentPath');
   }
@@ -69,10 +69,7 @@ function sendDocument(message, done) {
         contentType: message.document.type
       }
     }
-  } }, function (err) {
-    if (err) { console.log(err); }
-    return done();
-  });
+  } });
 }
 // Express
 var app = express();
@@ -264,6 +261,7 @@ function checkComs() {
       (function (item) {
         Communication.find({ where: { comId: item.comId } }).then(function (com) {
           if (!com) {
+            console.log('new comId: '+item.comId);
             crawler.downloadCom(item.comId, function (file, fileName) {
               Communication.create({
                 comId: item.comId,
