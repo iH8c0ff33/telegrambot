@@ -27,5 +27,6 @@ build/Release
 node_modules
 
 # Keys - COMMENTED ONLY ON PRIVATE GIT
-# *.pem
-# *.key
+*.pem
+*.key
+secure
