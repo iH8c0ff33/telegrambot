@@ -137,7 +137,7 @@ module.exports = {
     }, function (err) {
       if (err) { throw err; }
       request({
-        url: 'https://web.spaggiari.eu/sif/app/default/didattica.php',
+        url: 'https://web.spaggiari.eu/cvv/app/default/didattica.php',
         method: 'POST',
         jar: cookieJar,
         formData: {
@@ -146,8 +146,6 @@ module.exports = {
         },
         encoding: null
       }, function (_err, res, body) {
-        console.log('downloading '+fileId);
-        console.log(body.toString());
         var fileNameRegexp = /filename=(.*)/gi;
         var filename = fileNameRegexp.exec(res.headers['content-disposition'])[1];
         done(body, filename);
