@@ -20,7 +20,7 @@ var Settings = db.import(__dirname+'/models/settings.js');
 var File = db.import(__dirname+'/models/file.js');
 Chat.sync();
 Communication.sync({ force: true });
-Settings.sync();
+Settings.sync({ force: true });
 File.sync();
 // Load chats from database
 Chat.findAll().then(function (dbChats) {
