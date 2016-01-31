@@ -10,7 +10,7 @@ var crawler = require(__dirname+'/crawler.js');
 var network = require(__dirname+'/config/address.js');
 var telegram = require(__dirname+'/config/telegram.js');
 // Database connection
-var db = new sequelize(process.env.OPENSHIFT_POSTGRESQL_DB_URL+'/telegrambot');
+var db = new sequelize(process.env.OPENSHIFT_POSTGRESQL_DB_URL+'/telegrambot', { logging: null });
 var chats = {};
 var subscribedChats = [];
 // Database models
