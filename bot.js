@@ -357,8 +357,10 @@ function sendLast(number, chatId) {
   });
 }
 function sendFiles(chatId) {
+  console.log('sending files to '+chatId);
   var message = '-Allegati-\n';
   File.findAll().then(function (files) {
+    console.log('found files');
     files.forEach(function (file) {
       message += 'Nome: '+file.name+'\nAutore: '+file.author+'\nCartella: '+file.folder+'\n Scarica: /downloadf'+file.fileId+'\n------\n';
     });
