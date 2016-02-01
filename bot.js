@@ -43,7 +43,12 @@ function sendMessage(message) {
     text: message.text,
     disable_web_page_preview: message.disableWeb,
     parse_mode: message.parse_mode
-  } });
+  } }, function (err, res) {
+    if (err) {
+      console.log(err);
+    }
+    console.log(res);
+  });
 }
 // function sendPhoto(message) {
 //   if (!message.chat_id || !message.photoPath) {
@@ -362,7 +367,7 @@ function sendFiles(chatId) {
   File.findAll().then(function (files) {
     console.log('found files');
     files.forEach(function (file) {
-      message += 'Nome: '+file.name+'\nAutore: '+file.author+'\nCartella: '+file.folder+'\n Scarica: /downloadf'+file.fileId+'\n------\n';
+      message += 'Nome: '+file.name+'\nAutore: '+file.author+'\nCartella: '+file.folder+'\nScarica: /downloadf'+file.fileId+'\n------\n';
     });
     console.log(message);
     sendMessage({
