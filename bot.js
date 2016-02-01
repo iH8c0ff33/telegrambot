@@ -360,7 +360,7 @@ function sendFiles(chatId) {
   var message = '-Allegati-\n';
   File.findAll().then(function (files) {
     files.forEach(function (file) {
-      message += 'Nome: '+file.name+'\nAutore: '+file.author+'\nCartella: '+file.folder+'\n Scarica: /downloadf'+file.fileId;
+      message += 'Nome: '+file.name+'\nAutore: '+file.author+'\nCartella: '+file.folder+'\n Scarica: /downloadf'+file.fileId+'\n------\n';
     });
     sendMessage({
       chat_id: chatId,
