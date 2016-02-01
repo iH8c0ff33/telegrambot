@@ -43,12 +43,7 @@ function sendMessage(message) {
     text: message.text,
     disable_web_page_preview: message.disableWeb,
     parse_mode: message.parse_mode
-  } }, function (err, res) {
-    if (err) {
-      console.log(err);
-    }
-    console.log(res);
-  });
+  } });
 }
 // function sendPhoto(message) {
 //   if (!message.chat_id || !message.photoPath) {
