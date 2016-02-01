@@ -364,6 +364,7 @@ function sendFiles(chatId) {
     files.forEach(function (file) {
       message += 'Nome: '+file.name+'\nAutore: '+file.author+'\nCartella: '+file.folder+'\n Scarica: /downloadf'+file.fileId+'\n------\n';
     });
+    console.log(message);
     sendMessage({
       chat_id: chatId,
       text: message
