@@ -136,7 +136,9 @@ app.post('/'+telegram.token, function (req, res) {
       sendLast(5, req.body.message.chat.id);
     } else if (req.body.message.text.search(/^\/ultime10(@sunCorp_bot)?$/) > -1) {
       sendLast(10, req.body.message.chat.id);
-    } else if (req.body.message.text.search(/^\/download/) > -1) {
+    } else if (req.body.message.text.search(/^\/allegati(@sunCorp_bot)?$/) > -1) {
+      sendFiles(req.body.message.chat.id);
+    } else if (req.body.message.text.search(/^\/download(?!f)/) > -1) {
       (function (chatId) {
         Communication.find({ where: { comId: req.body.message.text.match(/\d+/)[0] } }).then(function (com) {
           if (!com) {
@@ -150,6 +152,26 @@ app.post('/'+telegram.token, function (req, res) {
               document: {
                 stream: com.attachment,
                 name: com.attachmentName,
+                type: 'application/octet-stream'
+              }
+            });
+          }
+        });
+      })(req.body.message.chat.id);
+    } else if (req.body.message.text.search(/^\/downloadf/) > -1) {
+      (function (chatId) {
+        File.find({ where: { fileId: req.body.message.text.match(/\d+/)[0] } }).then(function (file) {
+          if (!file) {
+            sendMessage({
+              chat_id: chatId,
+              text: 'Il file richiesto non è disponibile'
+            });
+          } else {
+            sendDocument({
+              chat_id: chatId,
+              document: {
+                stream: file.file,
+                name: file.fileName,
                 type: 'application/octet-stream'
               }
             });
@@ -328,6 +350,18 @@ function sendLast(number, chatId) {
     for (var current = 0; current < number; current++) {
       message += 'Titolo: '+announcments[current].title+'\nData: '+announcments[current].date+'\nAllegato: /download'+announcments[current].comId+'\n------\n';
     }
+    sendMessage({
+      chat_id: chatId,
+      text: message
+    });
+  });
+}
+function sendFiles(chatId) {
+  var message = '-Allegati-\n';
+  File.findAll().then(function (files) {
+    files.forEach(function (file) {
+      message += 'Nome: '+file.name+'\nAutore: '+file.author+'\nCartella: '+file.folder+'\n Scarica: /downloadf'+file.fileId;
+    });
     sendMessage({
       chat_id: chatId,
       text: message
